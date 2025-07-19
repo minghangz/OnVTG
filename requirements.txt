@@ -1,0 +1,6 @@
+omegaconf
+h5py
+tqdm
+numpy==1.23.1
+torch==1.13.1
+torchtext==0.14.1

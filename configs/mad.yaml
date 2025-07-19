@@ -1,0 +1,95 @@
+name: mad
+
+model:
+  text_net:
+    name: identity
+    in_dim: 512
+    embd_dim: 512
+    n_heads: 4
+    max_seq_len: 75
+    use_abs_pe: false
+    use_bkgd_token: true
+    
+  vid_net:
+    name: online_transformer
+    in_dim: 512
+    embd_dim: 512
+    n_heads: 4
+    max_seq_len: 256
+    stride: 2
+    n_convs: 2
+    n_encoder_layers: 8
+    memory_size: [2, 2, 16, 24, 12, 4, 2, 2]
+    attn_pdrop: 0.0
+    proj_pdrop: 0.1
+    path_pdrop: 0.1
+    use_abs_pe: false
+    
+  fusion:
+    vid_dim: 512
+    text_dim: 512
+
+  cls_head:
+    embd_dim: 512
+
+  reg_head:
+    embd_dim: 512
+    num_fpn_levels: 8
+  
+  future_cls_head:
+    embd_dim: 512
+
+  future_reg_head:
+    embd_dim: 512
+
+
+train:
+  data:
+    split: train
+    anno_file: ./data/mad/annotations/mad.json
+    vid_feat_dir: ./data/mad/clip_features/video_5fps_512d/
+    text_feat_dir: ./data/mad/clip_features/token_512d/
+    use_tokenizer: false
+
+    long_term_window_size: 8192
+    max_num_window: 1
+    max_text_len: 75
+    max_num_text: 8
+    clip_size: 1
+    clip_stride: 1
+    downsample_rate: 1
+    crop_ratio: [0.9, 1.0]
+    
+  batch_size: 1
+  num_workers: 4
+
+  epochs: 5
+  warmup_epochs: 5
+
+  loss_norm: 250
+  future_loss_norm: 250
+  loss_weight: 1.0
+  reg_loss: diou
+  
+  optimizer:
+    name: adamw
+    lr: 1.e-4
+    text_net_lr: 1.e-4
+    weight_decay: 0.05
+  clip_grad_norm: 1.0
+
+  scheduler:
+    name: multistep
+    steps: [-1]
+  
+  eval: true
+    
+eval:
+  max_vid_len: 32768
+  ranks: [1, 5, 10, 50]
+  iou_threshs: [0.1, 0.3, 0.5]
+  future_topk: 50
+
+log:
+  log_interval: 100
+  checkpoint_epochs: [5, 6, 7, 8, 9, 10]

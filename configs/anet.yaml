@@ -1,0 +1,101 @@
+name: anet
+
+model:
+  text_net:
+    name: transformer 
+    in_dim: 300
+    embd_dim: 128
+    n_heads: 4
+    max_seq_len: 48
+    n_layers: 5
+    attn_pdrop: 0.0
+    proj_pdrop: 0.1
+    path_pdrop: 0.1
+    use_abs_pe: true
+    use_bkgd_token: true
+    
+  vid_net:
+    name: online_transformer
+    in_dim: 500
+    embd_dim: 128
+    n_heads: 4
+    max_seq_len: 512
+    stride: 2
+    n_convs: 2
+    n_encoder_layers: 8
+    attn_pdrop: 0.0
+    proj_pdrop: 0.1
+    path_pdrop: 0.1
+    use_ref_pe: true
+    memory_size: [4, 4, 4, 8, 16, 16, 8, 4]
+    
+  fusion:
+    vid_dim: 128
+    text_dim: 128
+
+  cls_head:
+    embd_dim: 128
+
+  reg_head:
+    embd_dim: 128
+    num_fpn_levels: 8
+  
+  future_cls_head:
+    embd_dim: 128
+
+  future_reg_head:
+    embd_dim: 128
+
+train:
+  data:
+    split: train
+    anno_file: ./data/anet_1.3/annotations/anet_1.3.json
+    vid_feat_dir: ./data/anet_1.3/c3d_features
+    text_feat_dir: null
+    use_tokenizer: true
+
+    long_term_window_size: 1024
+    max_num_window: 1
+    max_text_len: 48
+    max_num_text: 2
+    clip_size: 16
+    clip_stride: 8
+    downsample_rate: 1
+    crop_ratio: null
+    drop_text: true
+
+  batch_size: 16
+  num_workers: 4
+
+  epochs: 12
+  warmup_epochs: 5
+
+  loss_norm: 160
+  future_loss_norm: 128
+  loss_weight: 2.0
+  reg_loss: diou
+
+  optimizer:
+    name: adamw
+    lr: 2.e-3
+    text_net_lr: 2.e-4
+    weight_decay: 0.05
+  clip_grad_norm: 1.0
+
+  scheduler:
+    name: multistep
+    steps: [-1]
+  
+  eval: true
+    
+eval:
+  data:
+    split: val_2
+
+  max_vid_len: 4096
+  ranks: [1, 5]
+  iou_threshs: [0.3, 0.5, 0.7]
+
+log:
+  log_interval: 100
+  checkpoint_epochs: [10, 11, 12, 13, 14, 15, 16, 17]

@@ -1,0 +1,97 @@
+name: tacos
+
+model:
+  text_net:
+    name: transformer
+    in_dim: 300
+    embd_dim: 128
+    n_heads: 4
+    max_seq_len: 48
+    n_layers: 5
+    attn_pdrop: 0.0
+    proj_pdrop: 0.1
+    path_pdrop: 0.1
+    use_abs_pe: true
+    use_bkgd_token: true
+    
+  vid_net:
+    name: online_transformer
+    in_dim: 4096
+    embd_dim: 256
+    n_heads: 4
+    max_seq_len: 2304
+    stride: 1
+    n_convs: 2
+    n_encoder_layers: 8
+    attn_pdrop: 0.0
+    proj_pdrop: 0.1
+    path_pdrop: 0.1
+    use_abs_pe: true
+    memory_size: [4, 4, 4, 12, 16, 12, 8, 4]
+    
+  fusion:
+    vid_dim: 256
+    text_dim: 128
+
+  cls_head:
+    embd_dim: 256
+
+  reg_head:
+    embd_dim: 256
+    num_fpn_levels: 8
+  
+  future_cls_head:
+    embd_dim: 256
+
+  future_reg_head:
+    embd_dim: 256
+
+train:
+  data:
+    split: train
+    anno_file: ./data/tacos/annotations/tacos.json
+    vid_feat_dir: ./data/tacos/c3d_features
+    text_feat_dir: null
+    use_tokenizer: true
+
+    long_term_window_size: 2304
+    max_num_window: 1
+    max_text_len: 48
+    max_num_text: 4
+    clip_size: 16
+    clip_stride: 4
+    downsample_rate: 4
+    crop_ratio: [0.9, 1.0]
+
+  batch_size: 4
+  num_workers: 4
+
+  epochs: 12
+  warmup_epochs: 5
+
+  loss_norm: 100
+  future_loss_norm: 128
+  loss_weight: 1.0
+  future_loss_weight: 1.0
+  reg_loss: diou
+
+  optimizer:
+    name: adamw
+    lr: 1.e-3
+    weight_decay: 0.05
+  clip_grad_norm: 1.0
+
+  scheduler:
+    name: multistep
+    steps: [-1]
+  
+  eval: true
+
+eval:
+  max_vid_len: 2304
+  ranks: [1, 5]
+  iou_threshs: [0.3, 0.5, 0.7]
+
+log:
+  log_interval: 100
+  checkpoint_epochs: [13, 14, 15, 16, 17]

@@ -1,0 +1,60 @@
+seed: 2024
+
+model:
+  fusion:
+    name: xattn
+    n_layers: 2
+    n_heads: 4
+    attn_pdrop: 0.0
+    proj_pdrop: 0.1
+    path_pdrop: 0.1
+    xattn_mode: affine
+
+  cls_head:
+    name: cls
+    n_layers: 2
+
+  reg_head:
+    name: reg
+    n_layers: 2
+  
+  future_cls_head:
+    name: cls
+    n_layers: 2
+
+  future_reg_head:
+    name: reg
+    num_fpn_levels: 1
+    n_layers: 2
+    out_dim: 1
+    relu: false
+
+train:
+  center_sampling: radius
+  center_sampling_radius: 1.5
+
+  eval: false
+  eval_epoch_interval: 1
+  
+eval:
+  data:
+    split: test
+
+  max_vid_len: 9216
+  ranks: [1, 5]
+  iou_threshs: [0.3, 0.5, 0.7]
+
+  pre_nms_topk: 200
+  pre_nms_thresh: 0.001
+  future_topk: 10
+  seg_len_thresh: 0.1
+
+  ckpt: null
+
+log:
+  log_interval: 100
+  checkpoint_epochs: [13, 14, 15, 16]
+
+_resume: null
+_distributed: false
+_root: results
