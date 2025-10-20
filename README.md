@@ -1,5 +1,7 @@
 # Hierarchical Event Memory for Accurate and Low-latency Online Video Temporal Grounding
 
+[[Paper](https://arxiv.org/abs/2508.04546)] [[Project Page](https://minghangz.github.io/publication/onvtg/)] [[Video](https://www.youtube.com/watch?v=xQdlHzqECEM)]
+
 In this work, we propose hierarchical event memory for online video temporal grounding (OnVTG), which requires the model to locate events related to a given natural language query within a video stream. Unlike regular video temporal grounding, OnVTG requires the model to make predictions without observing future frames. We achieve efficient, accurate, and real-time online video temporal localization. We validate the effectiveness of our method on the ActivityNet Captions, TACoS, and MAD datasets.
 
 Our paper is accepted by ICCV-2025.
